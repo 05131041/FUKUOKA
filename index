@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full bg-[#F9F7F2]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>福岡 | FUKUOKA Travel</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sage: {
+                            50: '#f4f6f3',
+                            100: '#e5eae1',
+                            200: '#cdd7c6',
+                            300: '#adc0a3',
+                            400: '#8ca480',
+                            500: '#738c67',
+                            600: '#5a704f',
+                            700: '#48583f',
+                            800: '#3c4835',
+                            900: '#323c2d',
+                        },
+                        beige: {
+                            50: '#fcfbf9',
+                            100: '#f7f4ed',
+                            200: '#eee8da',
+                            300: '#e0d6c2',
+                            400: '#cca88c',
+                            800: '#4e473b',
+                            900: '#363128',
+                        },
+                        clay: '#C27355',
+                        rosewood: '#BA7B88',
+                        ochre: '#B88F51',
+                        olive: '#627D75'
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'serif'],
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap');
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+            user-select: none;
+            touch-action: manipulation;
+            background-color: #F9F7F2;
+            color: #363128;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        .custom-div-icon {
+            background: transparent;
+            border: none;
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 1rem);
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 1.25rem;
+            padding: 4px;
+            background: #FCFBF9;
+            box-shadow: 0 10px 30px -5px rgba(54, 49, 40, 0.12);
+            border: 1px solid #EEE8DA;
+        }
+
+        .leaflet-container {
+            background-color: #f4f2eb !important;
+        }
+
+        .paper-texture {
+            background-color: #F9F7F2;
+            background-image: radial-gradient(#E0D6C2 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col text-beige-900 paper-texture overflow-x-hidden">
+
+    <!-- Top Header -->
+    <header class="bg-[#FCFBF9]/90 backdrop-blur-md border-b border-beige-200 text-beige-900 sticky top-0 z-30 shrink-0 transition-colors">
+        <div class="max-w-7xl mx-auto px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+                <div class="bg-sage-100 text-sage-700 p-2 rounded-xl flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 border border-sage-200/60">
+                    <i class="fa-solid fa-compass text-base sm:text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-serif font-bold tracking-tight text-beige-900 leading-tight">福岡 | FUKUOKA Travel</h1>
+                    <p class="text-[11px] text-beige-800/70">散步美食 · 景點與點心地圖導航</p>
+                </div>
+            </div>
+            
+            <div class="hidden sm:flex items-center space-x-2 text-xs text-sage-700 font-medium bg-sage-50 px-3 py-1.5 rounded-xl border border-sage-200">
+                <span class="inline-block w-2 h-2 rounded-full bg-sage-500 animate-pulse"></span>
+                <span>8日行程離線隨身版</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-4 flex flex-col md:flex-row gap-3 overflow-hidden relative">
+
+        <!-- Left Pane: Itinerary Controls & Cards List -->
+        <section id="list-pane" class="w-full md:w-1/2 lg:w-5/12 flex flex-col bg-[#FCFBF9] rounded-2xl shadow-xs border border-beige-200 overflow-hidden h-full">
+            
+            <!-- Sticky Filter Header -->
+            <div class="p-2.5 sm:p-3 bg-beige-50/80 backdrop-blur border-b border-beige-200/80 space-y-2 shrink-0">
+                
+                <!-- Search Box -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-beige-400 text-xs"></i>
+                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="搜尋景點、店家、備註..." 
+                        class="w-full pl-8 pr-8 py-1.5 bg-white border border-beige-200 rounded-xl text-xs outline-none focus:border-sage-500 focus:ring-1 focus:ring-sage-500 transition placeholder:text-beige-300">
+                    <button id="search-clear-btn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-beige-400 hover:text-beige-800">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Horizontal Scrollable Day Switcher -->
+                <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs font-medium snap-x">
+                    <button onclick="filterDay('all')" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-sage-600 text-white font-medium whitespace-nowrap shadow-xs transition active:scale-95 shrink-0" data-day="all">全部天數</button>
+                    <button onclick="filterDay(1)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="1">D1 抵達福岡/博多</button>
+                    <button onclick="filterDay(2)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="2">D2 天神</button>
+                    <button onclick="filterDay(3)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="3">D3 糸島海岸</button>
+                    <button onclick="filterDay(4)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="4">D4 由布院溫泉</button>
+                    <button onclick="filterDay(5)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="5">D5 由布院/博多</button>
+                    <button onclick="filterDay(6)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="6">D6 小倉城/門司港</button>
+                    <button onclick="filterDay(7)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="7">D7 太宰府天滿宮</button>
+                    <button onclick="filterDay(8)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="8">D8 柳橋市場/台灣QQ</button>
+                </div>
+
+                <!-- Category Filter Chips -->
+                <div class="flex items-center space-x-1 overflow-x-auto no-scrollbar text-xs">
+                    <button onclick="filterCategory('all')" class="cat-btn px-2.5 py-1 rounded-lg bg-beige-900 text-beige-50 font-medium whitespace-nowrap shrink-0" data-cat="all">全部</button>
+                    <button onclick="filterCategory('景點')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#EBF0E8] text-[#5A704F] border border-[#CDD7C6] whitespace-nowrap shrink-0" data-cat="景點">🌿 景點</button>
+                    <button onclick="filterCategory('美食')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#F8EFEA] text-[#C27355] border border-[#F0D8CD] whitespace-nowrap shrink-0" data-cat="美食">🍜 美食</button>
+                    <button onclick="filterCategory('甜點')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#F7EEF0] text-[#BA7B88] border border-[#EBD6DC] whitespace-nowrap shrink-0" data-cat="甜點">🍰 點心</button>
+                    <button onclick="filterCategory('購物')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#F8F3EA] text-[#B88F51] border border-[#EFE2CD] whitespace-nowrap shrink-0" data-cat="購物">🛍️ 購物</button>
+                    <button onclick="filterCategory('交通')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#EBF2F0] text-[#627D75] border border-[#CCDCD7] whitespace-nowrap shrink-0" data-cat="交通">🏨 交通/住宿</button>
+                </div>
+            </div>
+
+            <!-- Scrollable Timeline Items -->
+            <div id="itinerary-list" class="flex-1 overflow-y-auto p-2.5 sm:p-3 space-y-2.5 pb-16 sm:pb-3">
+                <!-- Dynamic itinerary cards rendered here -->
+            </div>
+
+            <!-- List Summary Counter Footer -->
+            <div class="px-3 py-2 bg-beige-100/70 border-t border-beige-200 text-xs text-beige-800/80 flex justify-between items-center shrink-0">
+                <span>顯示行程地點：<strong id="item-count" class="text-sage-700 font-bold">0</strong> 處</span>
+                <span class="text-[11px] text-beige-800/60"><i class="fa-regular fa-hand-pointer mr-1"></i>點擊卡片跳轉地圖</span>
+            </div>
+        </section>
+
+        <!-- Right Pane: Interactive Map -->
+        <section id="map-pane" class="w-full md:w-1/2 lg:w-7/12 hidden md:flex flex-col bg-[#FCFBF9] rounded-2xl shadow-xs border border-beige-200 overflow-hidden relative h-full min-h-[350px]">
+            <!-- Map Top Bar Info -->
+            <div class="p-2.5 bg-beige-50/90 border-b border-beige-200 flex justify-between items-center shrink-0 text-xs">
+                <div class="flex items-center space-x-1.5 text-beige-900 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-sage-500 animate-pulse"></span>
+                    <span class="font-serif">福岡動態地圖</span>
+                </div>
+                <div class="flex items-center space-x-2 text-[11px] text-beige-800/80">
+                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#738C67] mr-1"></span>景點</span>
+                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#C27355] mr-1"></span>美食</span>
+                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#BA7B88] mr-1"></span>甜點</span>
+                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#B88F51] mr-1"></span>購物</span>
+                </div>
+            </div>
+
+            <!-- Map Div -->
+            <div id="map" class="w-full flex-1 min-h-[300px]"></div>
+
+            <!-- Mobile View Map Center Reset Floating Button -->
+            <button onclick="resetMapView()" class="absolute bottom-4 right-4 z-20 bg-white/90 text-beige-800 p-2.5 rounded-2xl shadow-md border border-beige-200 active:scale-95 flex items-center justify-center">
+                <i class="fa-solid fa-location-crosshairs text-base text-sage-600"></i>
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation Dock -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#FCFBF9]/95 backdrop-blur-md border-t border-beige-200 px-4 py-2 pb-safe flex justify-around items-center shadow-lg">
+        <button id="nav-btn-list" onclick="switchMobileTab('list')" class="flex flex-col items-center justify-center w-24 py-1 text-sage-700 font-bold transition active:scale-95">
+            <i class="fa-solid fa-list-ul text-lg mb-0.5"></i>
+            <span class="text-[11px]">行程列表</span>
+        </button>
+
+        <button id="nav-btn-map" onclick="switchMobileTab('map')" class="flex flex-col items-center justify-center w-24 py-1 text-beige-400 font-medium transition active:scale-95">
+            <i class="fa-solid fa-map-location-dot text-lg mb-0.5"></i>
+            <span class="text-[11px]">動態地圖</span>
+        </button>
+    </nav>
+
+    <script>
+        // 8 Days Fukuoka Itinerary Data
+        const itineraryItems = [
+            // Day 1: 福岡 / 博多
+            { id: '1', day: 1, time: '09:30', title: '福岡機場 (FUK)', category: '交通', gmap: 'https://maps.app.goo.gl/fukuokaairport', lat: 33.5859, lng: 130.4442, desc: '搭乘福岡地下鐵機場線，約 6 分鐘直達博多車站。', price: '地下鐵約 260日圓' },
+            { id: '2', day: 1, time: '10:30', title: '博多車站 JR Hakata City', category: '購物', gmap: 'https://maps.google.com/?cid=1264871409393306911', lat: 33.5897, lng: 130.4207, desc: '集結阪急百貨、AMU PLAZA與屋頂花園，先寄放行李。', price: '自由漫步' },
+            { id: '3', day: 1, time: '11:30', title: '櫛田神社 (博多總鎮守)', category: '景點', gmap: 'https://maps.google.com/?cid=11639954002556587428', lat: 33.5931, lng: 130.4106, desc: '博多著名的古老神社，展示巨大的博多祇園山笠飾山。', price: '免費參觀' },
+            { id: '4', day: 1, time: '12:30', title: '博多運河城 (Canal City)', category: '購物', gmap: 'https://maps.google.com/?cid=16207815243977726417', lat: 33.5898, lng: 130.4108, desc: '複合式水岸商場，整點有水舞秀與拉麵競技場。', price: '免費入場' },
+            { id: '5', day: 1, time: '14:00', title: '鈴懸 本店 (Suzukake)', category: '甜點', gmap: 'https://maps.app.goo.gl/suzukake', lat: 33.5947, lng: 130.4068, desc: '福岡百年超人氣和菓子老店！草莓大福與鈴形草餅。', price: '約 1,000日圓' },
+            { id: '6', day: 1, time: '18:00', title: '博多華味鳥 本店', category: '美食', gmap: 'https://maps.app.goo.gl/hanamidori', lat: 33.5902, lng: 130.4093, desc: '福岡代表性道地美食「水瀧雞肉鍋」，湯頭濃郁鮮美。', price: '約 4,500日圓/人' },
+            { id: '7', day: 1, time: '20:00', title: '一蘭拉麵 總本店', category: '美食', gmap: 'https://maps.google.com/?cid=13490792589304192634', lat: 33.5932, lng: 130.4046, desc: '整棟紅色燈籠的一蘭全球總店！設有味集中獨立座位。', price: '約 980日圓' },
+            { id: '8', day: 1, time: '21:00', title: '中洲屋台街 (Nakasu Yatai)', category: '美食', gmap: 'https://maps.app.goo.gl/nakasuyatai', lat: 33.5898, lng: 130.4075, desc: '沿河岸的日式露天小吃攤，體驗熱鬧夜晚氛圍！', price: '約 2,000日圓' },
+
+            // Day 2: 天神
+            { id: '9', day: 2, time: '10:00', title: '天神地下街', category: '購物', gmap: 'https://maps.app.goo.gl/tenjin', lat: 33.5885, lng: 130.3995, desc: '歐洲古典風格地下街，連接 PARCO、三越等各大百貨。', price: '自由購物' },
+            { id: '10', day: 2, time: '12:00', title: '元祖博多明太重', category: '美食', gmap: 'https://maps.google.com/?cid=910283018230192', lat: 33.5912, lng: 130.4034, desc: '日本首家明太子專賣店！昆布醃漬明太子鋪在熱騰騰米飯上。', price: '約 2,000日圓' },
+            { id: '11', day: 2, time: '14:30', title: '大名商圈文青咖啡散策', category: '甜點', gmap: 'https://maps.google.com/?cid=102830192831', lat: 33.5878, lng: 130.3948, desc: '探索大名小巷獨立古著店與流行咖啡店。', price: '隨意逛逛' },
+            { id: '12', day: 2, time: '17:30', title: 'teamLab Forest Fukuoka', category: '景點', gmap: 'https://maps.google.com/?cid=946617048746295340', lat: 33.5925, lng: 130.3622, desc: '沉浸式光影藝術森林，超好拍互動體驗。', price: '門票約 2,200日圓' },
+
+            // Day 3: 糸島
+            { id: '13', day: 3, time: '10:30', title: '糸島 櫻井二見浦 夫婦岩', category: '景點', gmap: 'https://maps.google.com/?cid=5186366294324366694', lat: 33.6444, lng: 130.1983, desc: '福岡經典海邊絕景！矗立於海中的白色鳥居與夫婦岩。', price: '免費參觀' },
+            { id: '14', day: 3, time: '12:00', title: 'London Bus Cafe 倫敦巴士咖啡', category: '甜點', gmap: 'https://maps.app.goo.gl/londonbus', lat: 33.6420, lng: 130.1950, desc: '可愛紅色雙層復古倫敦巴士，享受海風與義式冰淇淋。', price: '約 600日圓' },
+            { id: '15', day: 3, time: '14:30', title: '福岡塔 (Fukuoka Tower)', category: '景點', gmap: 'https://maps.google.com/?cid=17975057117492187437', lat: 33.5933, lng: 130.3515, desc: '日本最高的海濱塔！可全景俯瞰博多灣美景。', price: '門票約 800日圓' },
+
+            // Day 4: 由布院溫泉
+            { id: '16', day: 4, time: '10:30', title: '由布院湯之坪街道', category: '景點', gmap: 'https://maps.app.goo.gl/yufuin', lat: 33.2645, lng: 131.3582, desc: '童話風格溫泉小鎮街區，有橡子共和國與金賞可樂餅。', price: '隨意漫步' },
+            { id: '17', day: 4, time: '11:30', title: 'Yufuin Floral Village 童話村', category: '景點', gmap: 'https://maps.google.com/?cid=2696757303103107704', lat: 33.2655, lng: 131.3620, desc: '重現英國科茲窩地區鄉村建築的小型主題區。', price: '免費入場' },
+            { id: '18', day: 4, time: '12:30', title: 'B-speak 奶油蛋糕卷', category: '甜點', gmap: 'https://maps.app.goo.gl/bspeak', lat: 33.2652, lng: 131.3567, desc: '由布院超難買到的排隊生乳卷！鮮奶油絲滑蓬鬆。', price: '約 1,600日圓/條' },
+            { id: '19', day: 4, time: '13:30', title: '由布院心 豐後牛蓋飯', category: '美食', gmap: 'https://maps.app.goo.gl/shin', lat: 33.2628, lng: 131.3551, desc: '大分知名「豐後牛三吃土鍋飯」，牛肉嫩滑香濃。', price: '約 2,800日圓' },
+            { id: '20', day: 4, time: '15:30', title: '金鱗湖 (Kinrin Lake)', category: '景點', gmap: 'https://maps.app.goo.gl/kinrin', lat: 33.2667, lng: 131.3658, desc: '湖底湧出溫泉與清水，清晨有夢幻朝霧，楓葉倒影極美。', price: '免費參觀' },
+
+            // Day 5: 由布院 / 博多
+            { id: '21', day: 5, time: '11:00', title: 'Snoopy Cha-ya 由布院店', category: '甜點', gmap: 'https://maps.google.com/?cid=1029381029318239', lat: 33.2648, lng: 131.3590, desc: '史努比主題和風茶屋！抹茶聖代與造型甜點很受歡迎。', price: '約 1,000日圓' },
+            { id: '22', day: 5, time: '15:30', title: 'LaLaport 福岡 (1:1 實物大鋼彈)', category: '購物', gmap: 'https://maps.google.com/?cid=16534745193780662528', lat: 33.5528, lng: 130.4402, desc: '世界首座 RX-93ff ν 鋼彈超大立像！夜晚配合燈光秀非常震撼。', price: '免費參觀' },
+
+            // Day 6: 小倉城 / 唐戶市場 / 門司港
+            { id: '23', day: 6, time: '09:30', title: '唐戶市場 (Karato Market)', category: '美食', gmap: 'https://maps.google.com/?cid=7791985743706569026', lat: 33.9575, lng: 130.9472, desc: '位於下關的海鮮聖地！週末有熱鬧握壽司市集，現切河豚刺身。', price: '約 2,000日圓' },
+            { id: '24', day: 6, time: '11:30', title: '門司港懷舊區 (Mojiko)', category: '景點', gmap: 'https://maps.app.goo.gl/mojiko', lat: 33.9458, lng: 130.9608, desc: '保留明治至大正時代歐式建築，藍翼門司吊橋音樂開橋秀。', price: '免費參觀' },
+            { id: '25', day: 6, time: '13:00', title: '伽哩本鋪 門司港店 (燒咖哩)', category: '美食', gmap: 'https://maps.app.goo.gl/curryhonpo', lat: 33.9468, lng: 130.9615, desc: '門司港名物「燒咖哩」，焗烤香濃起司搭配半熟蛋與濃郁咖哩。', price: '約 1,400日圓' },
+            { id: '26', day: 6, time: '15:30', title: '小倉城 (Kokura Castle)', category: '景點', gmap: 'https://maps.google.com/?cid=1371327252959948136', lat: 33.8834, lng: 130.8753, desc: '北九州唯一的名城，天守閣可俯瞰市區景緻。', price: '門票 350日圓' },
+
+            // Day 7: 太宰府
+            { id: '27', day: 7, time: '09:30', title: '太宰府天滿宮', category: '景點', gmap: 'https://maps.google.com/?cid=13268960937318002327', lat: 33.5215, lng: 130.5349, desc: '祈求學業與智慧的名神社，參道漫步感受古色古香街道。', price: '免費參觀' },
+            { id: '28', day: 7, time: '10:45', title: '寶滿宮 竈門神社', category: '景點', gmap: 'https://maps.google.com/?cid=1612711681283628434', lat: 33.5385, lng: 130.5481, desc: '著名的結緣神社與賞楓名所，設計現代優雅。', price: '免費參觀' },
+            { id: '29', day: 7, time: '12:00', title: 'かさの家 梅枝餅', category: '甜點', gmap: 'https://maps.app.goo.gl/kasanoya', lat: 33.5208, lng: 130.5312, desc: '太宰府必吃現烤熱騰騰「梅枝餅」，外皮酥脆內餡紅豆香甜。', price: '150日圓/個' },
+            { id: '30', day: 7, time: '12:30', title: '暖暮拉麵 太宰府站前店', category: '美食', gmap: 'https://maps.app.goo.gl/danbo', lat: 33.5186, lng: 130.5280, desc: '曾榮獲九州拉麵總選舉第一名！豚骨湯頭順口濃厚。', price: '約 900日圓' },
+
+            // Day 8: 柳橋市場 / 台灣
+            { id: '31', day: 8, time: '09:00', title: '柳橋連合市場', category: '美食', gmap: 'https://maps.google.com/?cid=102830192831', lat: 33.5833, lng: 130.4069, desc: '被稱為「博多的廚房」，品嚐鮮魚生魚片丼飯與炸魚餅。', price: '約 1,500日圓' },
+            { id: '32', day: 8, time: '11:00', title: '博多車站伴手禮採買', category: '購物', gmap: 'https://maps.app.goo.gl/hakatastation', lat: 33.5897, lng: 130.4207, desc: '採買明太子、福太郎仙貝、博多通饅頭、博多甘王草莓餅乾。', price: '自由採買' },
+            { id: '33', day: 8, time: '13:30', title: '福岡機場 (返台)', category: '交通', gmap: 'https://maps.app.goo.gl/fukuokaairport', lat: 33.5859, lng: 130.4442, desc: '滿載美味回憶準備搭機返回台灣！', price: '-' }
+        ];
+
+        // Global State Variables
+        let activeDay = 'all';
+        let activeCategory = 'all';
+        let searchQuery = '';
+        let map;
+        let markers = [];
+
+        // Aesthetic Warm Sage & Terracotta Category Mapping
+        const categoryConfig = {
+            '景點': { bg: 'bg-[#EBF0E8]', text: 'text-[#5A704F]', border: 'border-[#CDD7C6]', icon: 'fa-leaf', color: '#738C67' },
+            '美食': { bg: 'bg-[#F8EFEA]', text: 'text-[#C27355]', border: 'border-[#F0D8CD]', icon: 'fa-utensils', color: '#C27355' },
+            '甜點': { bg: 'bg-[#F7EEF0]', text: 'text-[#BA7B88]', border: 'border-[#EBD6DC]', icon: 'fa-cookie-bite', color: '#BA7B88' },
+            '購物': { bg: 'bg-[#F8F3EA]', text: 'text-[#B88F51]', border: 'border-[#EFE2CD]', icon: 'fa-bag-shopping', color: '#B88F51' },
+            '交通': { bg: 'bg-[#EBF2F0]', text: 'text-[#627D75]', border: 'border-[#CCDCD7]', icon: 'fa-bus', color: '#627D75' }
+        };
+
+        // Initialize Map
+        function initMap() {
+            map = L.map('map', {
+                zoomControl: true,
+                scrollWheelZoom: true
+            }).setView([33.5902, 130.4207], 11);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap & CartoDB',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+
+            renderListAndMap();
+        }
+
+        // Custom SVG Pin Marker
+        function createCustomPin(color) {
+            const svgPin = `
+                <div style="filter: drop-shadow(0px 3px 5px rgba(54,49,40,0.25));">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${color}" width="30" height="30">
+                        <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                    </svg>
+                </div>`;
+            return L.divIcon({
+                html: svgPin,
+                className: 'custom-div-icon',
+                iconSize: [30, 30],
+                iconAnchor: [15, 30],
+                popupAnchor: [0, -28]
+            });
+        }
+
+        function renderListAndMap() {
+            const listContainer = document.getElementById('itinerary-list');
+            listContainer.innerHTML = '';
+
+            // Reset Markers
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            // Filter logic
+            const filtered = itineraryItems.filter(item => {
+                const matchDay = (activeDay === 'all') || (item.day == activeDay);
+                const matchCat = (activeCategory === 'all') || (item.category === activeCategory);
+                const matchQuery = !searchQuery || 
+                    (item.title && item.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                    (item.desc && item.desc.toLowerCase().includes(searchQuery.toLowerCase()));
+                return matchDay && matchCat && matchQuery;
+            });
+
+            document.getElementById('item-count').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-12 text-beige-400">
+                        <i class="fa-solid fa-compass text-3xl mb-2 text-beige-300"></i>
+                        <p class="text-xs">沒有找到符合條件的地點</p>
+                    </div>`;
+                return;
+            }
+
+            const bounds = [];
+
+            filtered.forEach(item => {
+                const catInfo = categoryConfig[item.category] || categoryConfig['景點'];
+
+                // Render Card HTML
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-2xl border ${catInfo.border} bg-white shadow-xs hover:shadow-md transition-all duration-200 active:scale-[0.99] cursor-pointer flex flex-col space-y-1.5 group`;
+                card.onclick = () => focusLocation(item.lat, item.lng, item.id);
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="text-[10px] px-2 py-0.5 rounded-md ${catInfo.bg} ${catInfo.text} font-medium flex items-center">
+                                <i class="fa-solid ${catInfo.icon} mr-1 text-[9px]"></i>${item.category}
+                            </span>
+                            <span class="text-[10px] font-medium text-beige-800/70 bg-beige-100 px-1.5 py-0.5 rounded-md">
+                                Day ${item.day} · ${item.time || '時間未定'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-serif font-bold text-beige-900 text-sm group-hover:text-sage-700 transition-colors">
+                            ${item.title}
+                        </h3>
+                        ${item.desc ? `<p class="text-xs text-beige-800/70 mt-0.5 line-clamp-2 leading-relaxed">${item.desc}</p>` : ''}
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1 border-t border-beige-100 text-xs">
+                        <span class="text-[11px] text-beige-800/60 font-medium">${item.price ? `<i class="fa-regular fa-money-bill-1 mr-1"></i>${item.price}` : ''}</span>
+                        <a href="${item.gmap}" target="_blank" onclick="event.stopPropagation()" class="inline-flex items-center space-x-1 text-[11px] text-sage-700 font-semibold bg-sage-50 hover:bg-sage-100 px-2.5 py-1 rounded-lg transition-colors border border-sage-200/50">
+                            <i class="fa-solid fa-location-arrow text-[10px]"></i>
+                            <span>Google 地圖導航</span>
+                        </a>
+                    </div>
+                `;
+
+                listContainer.appendChild(card);
+
+                // Add Leaflet Marker
+                if (item.lat && item.lng) {
+                    const markerPin = createCustomPin(catInfo.color);
+                    const marker = L.marker([item.lat, item.lng], { icon: markerPin }).addTo(map);
+
+                    const popupContent = `
+                        <div class="p-2 max-w-[220px]">
+                            <div class="flex items-center space-x-1 mb-1">
+                                <span class="text-[9px] px-1.5 py-0.5 rounded ${catInfo.bg} ${catInfo.text} font-medium">D${item.day} ${item.category}</span>
+                                <span class="text-[10px] font-medium text-beige-800/70">${item.time || ''}</span>
+                            </div>
+                            <h4 class="font-serif font-bold text-xs text-beige-900">${item.title}</h4>
+                            <p class="text-[11px] text-beige-800/70 my-1 line-clamp-2">${item.desc || ''}</p>
+                            <a href="${item.gmap}" target="_blank" class="mt-2 inline-block w-full text-center bg-sage-600 text-white text-xs font-medium py-1.5 px-3 rounded-xl hover:bg-sage-700 transition">
+                                <i class="fa-solid fa-map-location-dot mr-1"></i>開 Google 地圖導航
+                            </a>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                    marker.itemId = item.id;
+                    markers.push(marker);
+                    bounds.push([item.lat, item.lng]);
+                }
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [25, 25], maxZoom: 14 });
+            }
+        }
+
+        function filterDay(day) {
+            activeDay = day;
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                if (btn.dataset.day == day) {
+                    btn.className = 'day-btn snap-start px-3 py-1.5 rounded-xl bg-sage-600 text-white font-medium whitespace-nowrap shadow-xs transition active:scale-95 shrink-0';
+                } else {
+                    btn.className = 'day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0';
+                }
+            });
+            renderListAndMap();
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat == cat) {
+                    btn.classList.add('ring-2', 'ring-sage-500', 'font-semibold');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-sage-500', 'font-semibold');
+                }
+            });
+            renderListAndMap();
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value.trim();
+            const clearBtn = document.getElementById('search-clear-btn');
+            if (searchQuery) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderListAndMap();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            handleSearch();
+        }
+
+        function focusLocation(lat, lng, itemId) {
+            if (window.innerWidth < 768) {
+                switchMobileTab('map');
+            }
+            if (lat && lng) {
+                setTimeout(() => {
+                    map.flyTo([lat, lng], 15, { duration: 1 });
+                    const marker = markers.find(m => m.itemId === itemId);
+                    if (marker) {
+                        marker.openPopup();
+                    }
+                }, 100);
+            }
+        }
+
+        function resetMapView() {
+            renderListAndMap();
+        }
+
+        function switchMobileTab(tab) {
+            const listPane = document.getElementById('list-pane');
+            const mapPane = document.getElementById('map-pane');
+            const navBtnList = document.getElementById('nav-btn-list');
+            const navBtnMap = document.getElementById('nav-btn-map');
+
+            if (tab === 'list') {
+                listPane.classList.remove('hidden');
+                mapPane.classList.add('hidden');
+                navBtnList.className = 'flex flex-col items-center justify-center w-24 py-1 text-sage-700 font-bold transition active:scale-95';
+                navBtnMap.className = 'flex flex-col items-center justify-center w-24 py-1 text-beige-400 font-medium transition active:scale-95';
+            } else {
+                listPane.classList.add('hidden');
+                mapPane.classList.remove('hidden');
+                mapPane.classList.add('flex');
+                navBtnList.className = 'flex flex-col items-center justify-center w-24 py-1 text-beige-400 font-medium transition active:scale-95';
+                navBtnMap.className = 'flex flex-col items-center justify-center w-24 py-1 text-sage-700 font-bold transition active:scale-95';
+                setTimeout(() => map.invalidateSize(), 200);
+            }
+        }
+
+        window.onload = function () {
+            initMap();
+        };
+    </script>
+</body>
+</html>
