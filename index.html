@@ -69,12 +69,24 @@
             color: #363128;
         }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+        /* 電腦版微型精緻橫向滾動條 */
+        .custom-scroll::-webkit-scrollbar {
+            height: 5px;
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #EEE8DA;
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #ADC0A3;
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #738C67;
+        }
+        .custom-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #ADC0A3 #EEE8DA;
         }
 
         #map {
@@ -153,7 +165,7 @@
                 </div>
 
                 <!-- Horizontal Scrollable Day Switcher -->
-                <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs font-medium snap-x">
+                <div class="flex items-center space-x-1.5 overflow-x-auto custom-scroll pb-1.5 pt-0.5 text-xs font-medium snap-x scroll-smooth">
                     <button onclick="filterDay('all')" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-sage-600 text-white font-medium whitespace-nowrap shadow-xs transition active:scale-95 shrink-0" data-day="all">全部天數</button>
                     <button onclick="filterDay(1)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="1">D1 抵達福岡/博多</button>
                     <button onclick="filterDay(2)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="2">D2 天神</button>
@@ -166,7 +178,7 @@
                 </div>
 
                 <!-- Category Filter Chips -->
-                <div class="flex items-center space-x-1 overflow-x-auto no-scrollbar text-xs">
+                <div class="flex items-center space-x-1 overflow-x-auto custom-scroll pb-1 text-xs scroll-smooth">
                     <button onclick="filterCategory('all')" class="cat-btn px-2.5 py-1 rounded-lg bg-beige-900 text-beige-50 font-medium whitespace-nowrap shrink-0" data-cat="all">全部</button>
                     <button onclick="filterCategory('景點')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#EBF0E8] text-[#5A704F] border border-[#CDD7C6] whitespace-nowrap shrink-0" data-cat="景點">🌿 景點</button>
                     <button onclick="filterCategory('美食')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#F8EFEA] text-[#C27355] border border-[#F0D8CD] whitespace-nowrap shrink-0" data-cat="美食">🍜 美食</button>
@@ -297,6 +309,19 @@
             '交通': { bg: 'bg-[#EBF2F0]', text: 'text-[#627D75]', border: 'border-[#CCDCD7]', icon: 'fa-bus', color: '#627D75' }
         };
 
+        // Enable Mouse Wheel Horizontal Scrolling for PC users
+        function enableWheelHorizontalScroll() {
+            const containers = document.querySelectorAll('.custom-scroll');
+            containers.forEach(container => {
+                container.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0) {
+                        e.preventDefault();
+                        container.scrollLeft += e.deltaY;
+                    }
+                }, { passive: false });
+            });
+        }
+
         // Initialize Map
         function initMap() {
             map = L.map('map', {
@@ -311,6 +336,7 @@
             }).addTo(map);
 
             renderListAndMap();
+            enableWheelHorizontalScroll();
         }
 
         // Custom SVG Pin Marker
