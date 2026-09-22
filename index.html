@@ -69,7 +69,7 @@
             color: #363128;
         }
 
-        /* 電腦版微型精緻橫向滾動條 */
+        /* 電腦版微型滾動條 */
         .custom-scroll::-webkit-scrollbar {
             height: 5px;
         }
@@ -208,11 +208,13 @@
                     <span class="w-2 h-2 rounded-full bg-sage-500 animate-pulse"></span>
                     <span class="font-serif">福岡動態地圖</span>
                 </div>
-                <div class="flex items-center space-x-2 text-[11px] text-beige-800/80">
-                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#738C67] mr-1"></span>景點</span>
-                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#C27355] mr-1"></span>美食</span>
-                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#BA7B88] mr-1"></span>甜點</span>
-                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#B88F51] mr-1"></span>購物</span>
+                <!-- 地圖頂部分類顏色圖例 -->
+                <div class="flex items-center space-x-2 text-[11px] text-beige-800/80 overflow-x-auto custom-scroll">
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#738C67] mr-1"></span>景點</span>
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#C27355] mr-1"></span>美食</span>
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#BA7B88] mr-1"></span>甜點</span>
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#B88F51] mr-1"></span>購物</span>
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#627D75] mr-1"></span>交通/住宿</span>
                 </div>
             </div>
 
@@ -300,7 +302,7 @@
         let map;
         let markers = [];
 
-        // Aesthetic Warm Sage & Terracotta Category Mapping
+        // Category Configurations
         const categoryConfig = {
             '景點': { bg: 'bg-[#EBF0E8]', text: 'text-[#5A704F]', border: 'border-[#CDD7C6]', icon: 'fa-leaf', color: '#738C67' },
             '美食': { bg: 'bg-[#F8EFEA]', text: 'text-[#C27355]', border: 'border-[#F0D8CD]', icon: 'fa-utensils', color: '#C27355' },
@@ -309,7 +311,6 @@
             '交通': { bg: 'bg-[#EBF2F0]', text: 'text-[#627D75]', border: 'border-[#CCDCD7]', icon: 'fa-bus', color: '#627D75' }
         };
 
-        // Enable Mouse Wheel Horizontal Scrolling for PC users
         function enableWheelHorizontalScroll() {
             const containers = document.querySelectorAll('.custom-scroll');
             containers.forEach(container => {
@@ -322,7 +323,6 @@
             });
         }
 
-        // Initialize Map
         function initMap() {
             map = L.map('map', {
                 zoomControl: true,
@@ -339,7 +339,6 @@
             enableWheelHorizontalScroll();
         }
 
-        // Custom SVG Pin Marker
         function createCustomPin(color) {
             const svgPin = `
                 <div style="filter: drop-shadow(0px 3px 5px rgba(54,49,40,0.25));">
@@ -360,11 +359,9 @@
             const listContainer = document.getElementById('itinerary-list');
             listContainer.innerHTML = '';
 
-            // Reset Markers
             markers.forEach(m => map.removeLayer(m));
             markers = [];
 
-            // Filter logic
             const filtered = itineraryItems.filter(item => {
                 const matchDay = (activeDay === 'all') || (item.day == activeDay);
                 const matchCat = (activeCategory === 'all') || (item.category === activeCategory);
@@ -390,7 +387,6 @@
             filtered.forEach(item => {
                 const catInfo = categoryConfig[item.category] || categoryConfig['景點'];
 
-                // Render Card HTML
                 const card = document.createElement('div');
                 card.className = `p-3 rounded-2xl border ${catInfo.border} bg-white shadow-xs hover:shadow-md transition-all duration-200 active:scale-[0.99] cursor-pointer flex flex-col space-y-1.5 group`;
                 card.onclick = () => focusLocation(item.lat, item.lng, item.id);
@@ -425,11 +421,11 @@
 
                 listContainer.appendChild(card);
 
-                // Add Leaflet Marker
                 if (item.lat && item.lng) {
                     const markerPin = createCustomPin(catInfo.color);
                     const marker = L.marker([item.lat, item.lng], { icon: markerPin }).addTo(map);
 
+                    // 這裡更新了彈出視窗導航按鈕的顏色與對比度
                     const popupContent = `
                         <div class="p-2 max-w-[220px]">
                             <div class="flex items-center space-x-1 mb-1">
@@ -438,7 +434,7 @@
                             </div>
                             <h4 class="font-serif font-bold text-xs text-beige-900">${item.title}</h4>
                             <p class="text-[11px] text-beige-800/70 my-1 line-clamp-2">${item.desc || ''}</p>
-                            <a href="${item.gmap}" target="_blank" class="mt-2 inline-block w-full text-center bg-sage-600 text-white text-xs font-medium py-1.5 px-3 rounded-xl hover:bg-sage-700 transition">
+                            <a href="${item.gmap}" target="_blank" class="mt-2 inline-block w-full text-center bg-sage-50 hover:bg-sage-100 text-sage-800 border border-sage-300/80 text-xs font-semibold py-1.5 px-3 rounded-xl transition shadow-xs">
                                 <i class="fa-solid fa-map-location-dot mr-1"></i>開 Google 地圖導航
                             </a>
                         </div>
