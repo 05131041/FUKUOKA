@@ -69,12 +69,24 @@
             color: #363128;
         }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+        /* 電腦版微型滾動條 */
+        .custom-scroll::-webkit-scrollbar {
+            height: 5px;
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #EEE8DA;
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #ADC0A3;
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #738C67;
+        }
+        .custom-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #ADC0A3 #EEE8DA;
         }
 
         #map {
@@ -104,10 +116,6 @@
             background-color: #f4f2eb !important;
         }
 
-        .leaflet-tile-container img {
-            image-rendering: -webkit-optimize-contrast;
-        }
-
         .paper-texture {
             background-color: #F9F7F2;
             background-image: radial-gradient(#E0D6C2 0.75px, transparent 0.75px);
@@ -132,7 +140,7 @@
             
             <div class="hidden sm:flex items-center space-x-2 text-xs text-sage-700 font-medium bg-sage-50 px-3 py-1.5 rounded-xl border border-sage-200">
                 <span class="inline-block w-2 h-2 rounded-full bg-sage-500 animate-pulse"></span>
-                <span>8日行程高畫質地圖版</span>
+                <span>8日行程離線隨身版</span>
             </div>
         </div>
     </header>
@@ -157,20 +165,20 @@
                 </div>
 
                 <!-- Horizontal Scrollable Day Switcher -->
-                <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs font-medium snap-x">
+                <div class="flex items-center space-x-1.5 overflow-x-auto custom-scroll pb-1.5 pt-0.5 text-xs font-medium snap-x scroll-smooth">
                     <button onclick="filterDay('all')" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-sage-600 text-white font-medium whitespace-nowrap shadow-xs transition active:scale-95 shrink-0" data-day="all">全部天數</button>
                     <button onclick="filterDay(1)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="1">D1 抵達福岡/博多</button>
-                    <button onclick="filterDay(2)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="2">D2 天神散策</button>
+                    <button onclick="filterDay(2)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="2">D2 天神</button>
                     <button onclick="filterDay(3)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="3">D3 糸島海岸</button>
                     <button onclick="filterDay(4)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="4">D4 由布院溫泉</button>
                     <button onclick="filterDay(5)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="5">D5 由布院/博多</button>
                     <button onclick="filterDay(6)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="6">D6 小倉城/門司港</button>
                     <button onclick="filterDay(7)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="7">D7 太宰府天滿宮</button>
-                    <button onclick="filterDay(8)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="8">D8 柳橋市場/返台</button>
+                    <button onclick="filterDay(8)" class="day-btn snap-start px-3 py-1.5 rounded-xl bg-white text-beige-800 hover:bg-beige-100 border border-beige-200 whitespace-nowrap transition active:scale-95 shrink-0" data-day="8">D8 柳橋市場/台灣QQ</button>
                 </div>
 
                 <!-- Category Filter Chips -->
-                <div class="flex items-center space-x-1 overflow-x-auto no-scrollbar text-xs">
+                <div class="flex items-center space-x-1 overflow-x-auto custom-scroll pb-1 text-xs scroll-smooth">
                     <button onclick="filterCategory('all')" class="cat-btn px-2.5 py-1 rounded-lg bg-beige-900 text-beige-50 font-medium whitespace-nowrap shrink-0" data-cat="all">全部</button>
                     <button onclick="filterCategory('景點')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#EBF0E8] text-[#5A704F] border border-[#CDD7C6] whitespace-nowrap shrink-0" data-cat="景點">🌿 景點</button>
                     <button onclick="filterCategory('美食')" class="cat-btn px-2.5 py-1 rounded-lg bg-[#F8EFEA] text-[#C27355] border border-[#F0D8CD] whitespace-nowrap shrink-0" data-cat="美食">🍜 美食</button>
@@ -198,13 +206,15 @@
             <div class="p-2.5 bg-beige-50/90 border-b border-beige-200 flex justify-between items-center shrink-0 text-xs">
                 <div class="flex items-center space-x-1.5 text-beige-900 font-medium">
                     <span class="w-2 h-2 rounded-full bg-sage-500 animate-pulse"></span>
-                    <span class="font-serif">福岡動態地圖 (高清版)</span>
+                    <span class="font-serif">福岡動態地圖</span>
                 </div>
-                <div class="flex items-center space-x-2 text-[11px] text-beige-800/80">
-                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#738C67] mr-1"></span>景點</span>
-                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#C27355] mr-1"></span>美食</span>
-                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#BA7B88] mr-1"></span>甜點</span>
-                    <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-[#B88F51] mr-1"></span>購物</span>
+                <!-- 地圖頂部分類顏色圖例 -->
+                <div class="flex items-center space-x-2 text-[11px] text-beige-800/80 overflow-x-auto custom-scroll">
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#738C67] mr-1"></span>景點</span>
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#C27355] mr-1"></span>美食</span>
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#BA7B88] mr-1"></span>甜點</span>
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#B88F51] mr-1"></span>購物</span>
+                    <span class="flex items-center whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-[#627D75] mr-1"></span>交通/住宿</span>
                 </div>
             </div>
 
@@ -325,19 +335,18 @@
 	    
 	    // Day 7: 太宰府
             { id: '74', day: 7, time: '09:30', title: '太宰府天滿宮', category: '景點', gmap: 'https://maps.app.goo.gl/1LWNwZk1AJszZSP99', lat: 33.5215, lng: 130.5348, desc: '營業時間:06:00～19:30', price: '' },
-            { id: '75', day: 7, time: '14:00', title: '寶滿宮竈門神社', category: '景點', gmap: '', lat: 33.5289, lng: 130.5524, desc: '絕美紅葉名所', price: '' },
-            { id: '76', day: 7, time: '15:30', title: '九州國立博物館', category: '景點', gmap: '', lat: 33.5186, lng: 130.5386, desc: '', price: '' },
+            { id: '75', day: 7, time: '14:00', title: '寶滿宮竈門神社', category: '景點', gmap: 'https://maps.app.goo.gl/c4JYW23zf554RMP2A', lat: 33.5289, lng: 130.5524, desc: '絕美紅葉名所', price: '' },
             { id: '77', day: 7, time: '11:30', title: '一蘭拉麵 太宰府參道店', category: '美食', gmap: 'https://maps.app.goo.gl/hUgjii7vjr332Yvb9', lat: 33.5189698, lng: 130.5325585, desc: '五角形碗合格拉麵 營業時間:09:00–19:00', price: '' },
             { id: '78', day: 7, time: '12:30', title: '味之明太子 fukuya', category: '美食', gmap: 'https://maps.app.goo.gl/1sbvs9yp2jhvrZqQA', lat: 33.5196346, lng: 130.5330547, desc: 'ふくや太宰府店 (明太子茶漬飯) 營業時間:09:30–17:30', price: '' },
             { id: '79', day: 7, time: '13:00', title: '漢堡 筑紫庵本店', category: '甜點', gmap: 'https://maps.app.goo.gl/wH4HgYe2iznvsJkPA', lat: 33.5197076, lng: 130.53239, desc: '太宰府漢堡 (太宰府バーガー)。內餡為現炸香酥多汁的唐揚雞，搭配太宰府在地特產「酸甜梅子醬」 營業時間:10:30–18:00', price: '' },
-            { id: '80', day: 7, time: '10:30', title: '草莓最中·大福 天山 本店', category: '甜點', gmap: 'https://maps.app.goo.gl/FtH9Q9BP6F4e2AQd7', lat: 33.5864, lng: 130.3778, desc: '甘王草莓大福串 營業時間:10:00–17:00', price: '' },
-            { id: '81', day: 7, time: '11:00', title: '梅枝餅', category: '甜點', gmap: '', lat: 33.5211, lng: 130.533, desc: 'かさの家 / やす武', price: '' },
+            { id: '80', day: 7, time: '10:30', title: '草莓最中·大福 天山 本店', category: '甜點', gmap: 'https://maps.app.goo.gl/FtH9Q9BP6F4e2AQd7', lat: 33.519439, lng: 130.532365, desc: '甘王草莓大福串 營業時間:10:00–17:00', price: '' },
+            { id: '81', day: 7, time: '11:00', title: '梅枝餅', category: '甜點', gmap: 'https://maps.app.goo.gl/sTkp8HFw2PHLNMft8', lat: 33.5211, lng: 130.533, desc: 'かさの家 / やす武 營業時間:09:00–18:00', price: '' },
             { id: '82', day: 7, time: '15:00', title: '福太郎 太宰府店', category: '甜點', gmap: 'https://maps.app.goo.gl/9b9BL9mThPoJcqQ67', lat: 33.5196216, lng: 130.5307538, desc: 'Fukutaro (明太子烤飯糰) 營業時間:09:00–17:00', price: '' },
             { id: '71', day: 7, time: '', title: '隈研吾星巴克', category: '甜點', gmap: 'https://maps.app.goo.gl/4CkxRGLSdFfvjKHY9', lat: 33.5196381, lng: 130.5334015, desc: '營業時間:08:00–20:00', price: '' },
 
             // Day 8: 柳橋連合市場
-            { id: '83', day: 8, time: '09:00', title: '柳橋連合市場', category: '景點', gmap: '', lat: 33.5833, lng: 130.4078, desc: '博多人的廚房 博多車站伴手禮街 博多阪急百貨', price: '' },
-            { id: '84', day: 8, time: '09:30', title: '柳橋連合市場：柳橋食堂 / まぐろ本舗', category: '美食', gmap: '', lat: 33.5833, lng: 130.4078, desc: '高 CP 值現切海鮮丼', price: '' }
+            { id: '83', day: 8, time: '09:00', title: '柳橋連合市場', category: '景點', gmap: 'https://maps.app.goo.gl/D963M6JJP67tkvax7', lat: 33.5833, lng: 130.4078, desc: '博多人的廚房', price: '' },
+            { id: '84', day: 8, time: '09:30', title: '柳橋連合市場：柳橋食堂', category: '美食', gmap: 'https://maps.app.goo.gl/YLokY5ygmEyGoSxTA', lat: 33.5833, lng: 130.4078, desc: '高 CP 值現切海鮮丼 營業時間:08:30–14:00(禮拜天休息)', price: '' }
         ];
 
         // Global State Variables
@@ -347,7 +356,7 @@
         let map;
         let markers = [];
 
-        // Aesthetic Warm Sage & Terracotta Category Mapping
+        // Category Configurations
         const categoryConfig = {
             '景點': { bg: 'bg-[#EBF0E8]', text: 'text-[#5A704F]', border: 'border-[#CDD7C6]', icon: 'fa-leaf', color: '#738C67' },
             '美食': { bg: 'bg-[#F8EFEA]', text: 'text-[#C27355]', border: 'border-[#F0D8CD]', icon: 'fa-utensils', color: '#C27355' },
@@ -356,26 +365,34 @@
             '交通': { bg: 'bg-[#EBF2F0]', text: 'text-[#627D75]', border: 'border-[#CCDCD7]', icon: 'fa-bus', color: '#627D75' }
         };
 
-        // Initialize Map with High-DPI @2x Retina Tiles Support
+        function enableWheelHorizontalScroll() {
+            const containers = document.querySelectorAll('.custom-scroll');
+            containers.forEach(container => {
+                container.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0) {
+                        e.preventDefault();
+                        container.scrollLeft += e.deltaY;
+                    }
+                }, { passive: false });
+            });
+        }
+
         function initMap() {
             map = L.map('map', {
                 zoomControl: true,
                 scrollWheelZoom: true
             }).setView([33.5902, 130.4207], 11);
 
-            // Enabled detectRetina: true and maxNativeZoom to fix pixel blurriness
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; OpenStreetMap & CartoDB',
                 subdomains: 'abcd',
-                maxZoom: 20,
-                maxNativeZoom: 19,
-                detectRetina: true
+                maxZoom: 19
             }).addTo(map);
 
             renderListAndMap();
+            enableWheelHorizontalScroll();
         }
 
-        // Custom SVG Pin Marker
         function createCustomPin(color) {
             const svgPin = `
                 <div style="filter: drop-shadow(0px 3px 5px rgba(54,49,40,0.25));">
@@ -396,11 +413,9 @@
             const listContainer = document.getElementById('itinerary-list');
             listContainer.innerHTML = '';
 
-            // Reset Markers
             markers.forEach(m => map.removeLayer(m));
             markers = [];
 
-            // Filter logic
             const filtered = itineraryItems.filter(item => {
                 const matchDay = (activeDay === 'all') || (item.day == activeDay);
                 const matchCat = (activeCategory === 'all') || (item.category === activeCategory);
@@ -426,7 +441,6 @@
             filtered.forEach(item => {
                 const catInfo = categoryConfig[item.category] || categoryConfig['景點'];
 
-                // Render Card HTML
                 const card = document.createElement('div');
                 card.className = `p-3 rounded-2xl border ${catInfo.border} bg-white shadow-xs hover:shadow-md transition-all duration-200 active:scale-[0.99] cursor-pointer flex flex-col space-y-1.5 group`;
                 card.onclick = () => focusLocation(item.lat, item.lng, item.id);
@@ -461,11 +475,11 @@
 
                 listContainer.appendChild(card);
 
-                // Add Leaflet Marker
                 if (item.lat && item.lng) {
                     const markerPin = createCustomPin(catInfo.color);
                     const marker = L.marker([item.lat, item.lng], { icon: markerPin }).addTo(map);
 
+                    // 這裡更新了彈出視窗導航按鈕的顏色與對比度
                     const popupContent = `
                         <div class="p-2 max-w-[220px]">
                             <div class="flex items-center space-x-1 mb-1">
@@ -474,7 +488,7 @@
                             </div>
                             <h4 class="font-serif font-bold text-xs text-beige-900">${item.title}</h4>
                             <p class="text-[11px] text-beige-800/70 my-1 line-clamp-2">${item.desc || ''}</p>
-                            <a href="${item.gmap}" target="_blank" class="mt-2 inline-block w-full text-center bg-sage-600 text-white text-xs font-medium py-1.5 px-3 rounded-xl hover:bg-sage-700 transition">
+                            <a href="${item.gmap}" target="_blank" class="mt-2 inline-block w-full text-center bg-sage-50 hover:bg-sage-100 text-sage-800 border border-sage-300/80 text-xs font-semibold py-1.5 px-3 rounded-xl transition shadow-xs">
                                 <i class="fa-solid fa-map-location-dot mr-1"></i>開 Google 地圖導航
                             </a>
                         </div>
